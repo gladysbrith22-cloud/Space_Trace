@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Editar historia{% endblock %}
+{% block contenido %}
+<h1>Editar historia</h1><p class="lead">Sobre: {{ equipo['nombre'] }}</p>
+<form class="card f" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Título<input name="titulo" required maxlength="100" value="{{ historia['titulo'] }}"></label>
+  <label>Tu historia<textarea name="texto" required maxlength="1500">{{ historia['texto'] }}</textarea></label>
+  <div class="row"><button class="btn" type="submit">Guardar cambios</button>
+  <a class="btn sec" href="{{ url_for('equipos.detalle', equipo_id=equipo['id']) }}">Cancelar</a></div>
+</form>
+{% endblock %}

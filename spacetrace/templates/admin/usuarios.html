@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+<h1>Gestión de usuarios</h1>
+<div class="card tablewrap"><table>
+<thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Historias</th><th>Acciones</th></tr></thead>
+<tbody>
+{% for u in usuarios %}
+<tr><td>{{ u['nombre'] }}</td><td>{{ u['email'] }}</td>
+<td><form class="inline row" method="post" action="{{ url_for('admin.cambiar_rol', user_id=u['id']) }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<select name="rol" style="width:auto" aria-label="Rol de {{ u['nombre'] }}">
+<option {{ 'selected' if u['rol']=='EXPLORADOR' }}>EXPLORADOR</option><option {{ 'selected' if u['rol']=='ADMIN' }}>ADMIN</option></select>
+<button class="btn sm sec" type="submit">Cambiar</button></form></td>
+<td>{{ 'Activo' if u['activo'] else 'Desactivado' }}</td><td>{{ u['n_historias'] }}</td>
+<td class="row">
+<form class="inline" method="post" action="{{ url_for('admin.cambiar_estado', user_id=u['id']) }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn sm sec" type="submit">{{ 'Desactivar' if u['activo'] else 'Activar' }}</button></form>
+<form class="inline" method="post" action="{{ url_for('admin.eliminar_usuario', user_id=u['id']) }}" onsubmit="return confirm('¿Eliminar usuario y sus historias?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn sm danger" type="submit">Eliminar</button></form></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

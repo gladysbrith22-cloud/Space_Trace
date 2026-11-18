@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Mi panel{% endblock %}
+{% block contenido %}
+<h1>Mi panel</h1>
+<p class="lead">{{ usuario['nombre'] }} · {{ usuario['email'] }} · <span class="badge {{ 'admin' if usuario['rol']=='ADMIN' }}">{{ usuario['rol'] }}</span></p>
+{% if stats %}
+<div class="stats">
+  <div class="stat"><b>{{ stats.equipos }}</b>equipos</div>
+  <div class="stat"><b>{{ stats.historias }}</b>historias</div>
+  <div class="stat"><b>{{ stats.usuarios }}</b>usuarios</div>
+</div>
+<p class="row"><a class="btn" href="{{ url_for('equipos.nuevo') }}">+ Nuevo equipo</a>
+<a class="btn sec" href="{{ url_for('admin.usuarios') }}">Gestionar usuarios</a></p>
+{% endif %}
+<h2>Mis historias</h2>
+{% for h in historias %}
+<article class="card"><h3 style="margin-top:0">{{ h['titulo'] }}</h3><p class="muted">Sobre: {{ h['equipo'] }}</p><p>{{ h['texto'] }}</p>
+<div class="row"><a class="btn sm sec" href="{{ url_for('equipos.editar_historia', historia_id=h['id']) }}">Editar</a>
+<form class="inline" method="post" action="{{ url_for('equipos.eliminar_historia', historia_id=h['id']) }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="panel">
+<button class="btn sm danger" type="submit">Eliminar</button></form></div></article>
+{% else %}<div class="card muted">Todavía no has publicado historias. <a href="{{ url_for('equipos.lista') }}">Explora el archivo</a>.</div>{% endfor %}
+{% endblock %}

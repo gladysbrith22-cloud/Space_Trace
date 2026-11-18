@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Registro{% endblock %}
+{% block contenido %}
+<div class="card" style="max-width:460px;margin:auto">
+<h1>Crear cuenta</h1>
+<form class="f" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nombre<input name="nombre" required maxlength="60" value="{{ datos.nombre }}"></label>
+  <label>Correo electrónico<input type="email" name="email" required value="{{ datos.email }}"></label>
+  <label>Contraseña (mín. 8, letras y números)<input type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+  <label>Confirmar contraseña<input type="password" name="confirmar" required minlength="8" autocomplete="new-password"></label>
+  <button class="btn" type="submit">Registrarme como explorador</button>
+</form>
+<p class="muted">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
+</div>
+{% endblock %}

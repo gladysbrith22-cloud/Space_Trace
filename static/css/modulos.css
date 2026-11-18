@@ -1,0 +1,60 @@
+/* Módulos Flask (archivo, cuentas, administración) · tema espacial */
+:root{--m-bg:#0b1030;--m-bg2:#141a4a;--m-card:#171d52;--m-line:#3a44a8;--m-fg:#f3f4ff;--m-muted:#b4bbea;
+--m-a:#ffd23f;--m-b:#ff6a00;--m-c:#00d4ff;--m-ok:#2ee59d;--m-err:#ff5d73}
+*{box-sizing:border-box}
+body.mod{margin:0;font-family:"Manrope","Segoe UI",system-ui,sans-serif;color:var(--m-fg);
+background:radial-gradient(ellipse at 20% 0%,#2b2fa0 0%,transparent 55%),radial-gradient(ellipse at 90% 30%,#6d28d9 0%,transparent 50%),var(--m-bg);
+min-height:100vh;line-height:1.55}
+.mod a{color:var(--m-c)}
+.mod-nav{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+padding:10px 18px;background:rgba(11,16,48,.92);backdrop-filter:blur(8px);border-bottom:2px solid var(--m-line)}
+.mod-nav .brand{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--m-a);text-decoration:none;margin-right:10px}
+.mod-nav .brand img{width:30px;height:30px;border-radius:8px}
+.mod-nav a.l,.mod-nav button.l{color:var(--m-fg);text-decoration:none;font-weight:700;padding:8px 14px;border-radius:999px;
+border:2px solid transparent;background:none;font:inherit;font-weight:700;cursor:pointer}
+.mod-nav a.l:hover,.mod-nav button.l:hover,.mod-nav a.l.on{border-color:var(--m-c);color:var(--m-c)}
+.mod-nav .sp{flex:1}
+.mod-nav .who{color:var(--m-muted);font-size:.9rem}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:800;background:var(--m-b);color:#fff}
+.badge.admin{background:var(--m-err)}.badge.luna{background:#7c8cff}.badge.marte{background:#ff6a00}.badge.espacio{background:#8b5cf6}
+.badge.activo{background:var(--m-ok);color:#06281c}
+main.mod-main{max-width:1000px;margin:0 auto;padding:24px 18px 60px}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);margin:.2em 0 .3em;color:var(--m-a)}
+h2{color:var(--m-c);margin-top:1.4em}
+.lead{color:var(--m-muted);font-size:1.05rem}
+.card{background:var(--m-card);border:2px solid var(--m-line);border-radius:16px;padding:18px 20px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.grid .card{margin:0;display:flex;flex-direction:column;gap:8px}
+.grid img.thumb{width:100%;height:150px;object-fit:cover;border-radius:10px;background:#0b1030}
+.card h3{margin:.1em 0}
+.muted{color:var(--m-muted)}
+.btn{display:inline-block;border:0;border-radius:12px;padding:10px 18px;font:inherit;font-weight:800;cursor:pointer;
+text-decoration:none;background:linear-gradient(135deg,var(--m-a),var(--m-b));color:#1a1030}
+.btn.sec{background:transparent;border:2px solid var(--m-c);color:var(--m-c)}
+.btn.danger{background:var(--m-err);color:#fff}
+.btn.sm{padding:6px 12px;font-size:.88rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+form.f{display:grid;gap:14px}
+label{font-weight:700;display:grid;gap:6px}
+input,select,textarea{width:100%;padding:11px 12px;border-radius:10px;border:2px solid var(--m-line);background:#0b1030;color:var(--m-fg);font:inherit}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--m-c);outline-offset:1px}
+textarea{min-height:110px;resize:vertical}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.cols2{grid-template-columns:1fr}}
+.flash{padding:12px 16px;border-radius:12px;margin:10px 0;font-weight:700;border:2px solid}
+.flash.ok{background:rgba(46,229,157,.12);border-color:var(--m-ok)}
+.flash.error{background:rgba(255,93,115,.14);border-color:var(--m-err)}
+.flash.info{background:rgba(0,212,255,.12);border-color:var(--m-c)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--m-line);vertical-align:middle}
+th{color:var(--m-a)}
+.tablewrap{overflow-x:auto}
+.hero-img{width:100%;max-height:340px;object-fit:cover;border-radius:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--m-bg2);border:2px solid var(--m-line);border-radius:14px;padding:14px;text-align:center}
+.stat b{display:block;font-size:2rem;color:var(--m-a)}
+.inline{display:inline}
+footer.mod-foot{text-align:center;color:var(--m-muted);padding:24px;font-size:.9rem}
+.mod a.btn{color:#1a1030}
+.mod a.btn.sec{color:var(--m-c)}
+.mod a.btn.danger{color:#fff}

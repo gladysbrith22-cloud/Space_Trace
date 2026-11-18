@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Archivo Interplanetario: Explorando las máquinas que la NASA dejó atrás y el legado de quienes las crearon.">
+  <meta name="author" content="Equipo Space Trace">
+  <meta name="theme-color" content="#11110f">
+  <title>Space Trace | Abandonados, no olvidados</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2311110f'/%3E%3Cpath d='M16 6l2.6 6.8L25 16l-6.4 3.2L16 26l-2.6-6.8L7 16l6.4-3.2z' fill='%23d7bd7a'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}?v=53">
+</head>
+<body>
+
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <nav id="nav" aria-label="Navegación principal"></nav>
+
+  <section class="v on" id="v-portada">
+    <div class="hero-copy">
+      <span class="hero-kicker"><span data-i18n="kickerArchive"></span> <i></i> <span data-i18n="kickerVol"></span></span>
+      <h1><span data-i18n="heroTitle1"></span><br><span data-i18n="heroTitle2"></span></h1>
+      <p data-i18n="heroIntro"></p>
+    </div>
+
+    <figure class="hero-image-frame" aria-label="Misiones del archivo Space Trace">
+      <button class="hero-vessel-card" type="button" data-vessel="opportunity" data-i18n-attr="aria-label:vesselOppAria" aria-label="Opportunity, rover en Marte, misión MER-B de 2004 a 2018" aria-pressed="false">
+        <img src="{{ url_for('static', filename='img/Naves/Opportuny.jpg') }}" alt="" class="hero-img">
+        <span class="hero-vessel-caption"><b data-i18n="vesselOpp"></b><small data-i18n="vesselOppMeta"></small></span>
+      </button>
+      <button class="hero-vessel-card" type="button" data-vessel="lunar-rover" data-i18n-attr="aria-label:vesselLunarAria" aria-label="Rover lunar, vehículo de Apollo" aria-pressed="false">
+        <img src="{{ url_for('static', filename='img/Naves/RoverL.png') }}" alt="" class="hero-img">
+        <span class="hero-vessel-caption"><b data-i18n="vesselLunar"></b><small data-i18n="vesselLunarMeta"></small></span>
+      </button>
+      <button class="hero-vessel-card" type="button" data-vessel="apollo" data-i18n-attr="aria-label:vesselApolloAria" aria-label="Módulo lunar Apollo 11 en la Luna" aria-pressed="false">
+        <img src="{{ url_for('static', filename='img/Naves/Apollo11.jpg') }}" alt="" class="hero-img">
+        <span class="hero-vessel-caption"><b data-i18n="vesselApollo"></b><small data-i18n="vesselApolloMeta"></small></span>
+      </button>
+      <button class="hero-vessel-card" type="button" data-vessel="ingenuity" data-i18n-attr="aria-label:vesselIngenuityAria" aria-label="Ingenuity, helicóptero en Marte" aria-pressed="false">
+        <img src="{{ url_for('static', filename='img/Naves/Ingenuity.png') }}" alt="" class="hero-img">
+        <span class="hero-vessel-caption"><b data-i18n="vesselIngenuity"></b><small data-i18n="vesselIngenuityMeta"></small></span>
+      </button>
+      <button class="hero-vessel-card" type="button" data-vessel="voyager" data-i18n-attr="aria-label:vesselVoyagerAria" aria-label="Sonda Voyager 1 en el espacio interestelar" aria-pressed="false">
+        <img src="{{ url_for('static', filename='img/Naves/Voyager1.png') }}" alt="" class="hero-img">
+        <span class="hero-vessel-caption"><b data-i18n="vesselVoyager"></b><small data-i18n="vesselVoyagerMeta"></small></span>
+      </button>
+    </figure>
+
+    <div class="hero-message">
+      <svg class="atom" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <g class="atom-orbit orbit-one">
+          <g transform="rotate(0 32 32)">
+            <ellipse cx="32" cy="32" rx="27" ry="10"></ellipse>
+            <circle cx="59" cy="32" r="2.5"></circle>
+          </g>
+        </g>
+        <g class="atom-orbit orbit-two">
+          <g transform="rotate(60 32 32)">
+            <ellipse cx="32" cy="32" rx="27" ry="10"></ellipse>
+            <circle cx="59" cy="32" r="2.5"></circle>
+          </g>
+        </g>
+        <g class="atom-orbit orbit-three">
+          <g transform="rotate(120 32 32)">
+            <ellipse cx="32" cy="32" rx="27" ry="10"></ellipse>
+            <circle cx="59" cy="32" r="2.5"></circle>
+          </g>
+        </g>
+        <circle class="atom-core" cx="32" cy="32" r="3.5"></circle>
+      </svg>
+      <p data-i18n="heroMessage"></p>
+    </div>
+
+    <div class="hero-actions">
+      <p class="blink" data-i18n="blink"></p>
+      <button class="go" id="start" data-i18n="start"></button>
+      <div class="exploration-progress" aria-label="Progreso de exploración">
+        <div class="exploration-progress-heading">
+          <span data-i18n="bitacora"></span>
+          <strong id="exploration-count" aria-live="polite">0/5 archivos</strong>
+        </div>
+        <progress id="exploration-meter" max="5" value="0" aria-label="Archivos explorados"></progress>
+        <ol class="exploration-steps">
+          <li data-explore-step="heroes" data-i18n="stepHeroes"></li>
+          <li data-explore-step="tiempo" data-i18n="stepTime"></li>
+          <li data-explore-step="ciencia" data-i18n="stepSci"></li>
+          <li data-explore-step="medios" data-i18n="stepMedia"></li>
+          <li data-explore-step="juego" data-i18n="stepGame"></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="v" id="v-heroes">
+    <div class="heroes-list">
+      <header class="heroes-heading">
+        <h2 data-i18n="heroesTitle"></h2>
+        <p class="muted" data-i18n="heroesSub"></p>
+      </header>
+      <div id="heroes"></div>
+    </div>
+    <aside id="hero-detail" class="hero-detail" aria-label="Detalle del héroe seleccionado" aria-live="polite">
+      <div class="hero-detail-empty">
+        <span aria-hidden="true">✦</span>
+        <p data-i18n="heroEmpty"></p>
+      </div>
+    </aside>
+  </section>
+
+  <section class="v" id="v-tiempo">
+    <header class="section-heading">
+      <span class="section-kicker" data-i18n="timeKicker"></span>
+      <h2 data-i18n="timeTitle"></h2>
+      <p class="muted" data-i18n="timeSub"></p>
+    </header>
+    <ul class="tl" id="tl" tabindex="0" aria-label="Recorrido horizontal por los hitos espaciales"></ul>
+  </section>
+
+  <section class="v" id="v-ciencia">
+    <header class="section-heading">
+      <span class="section-kicker" data-i18n="sciKicker"></span>
+      <h2 data-i18n="sciTitle"></h2>
+      <p class="muted" data-i18n="sciSub"></p>
+    </header>
+    <div id="sci"></div>
+  </section>
+
+  <section class="v" id="v-medios">
+    <header class="section-heading">
+      <span class="section-kicker" data-i18n="mediaKicker"></span>
+      <h2 data-i18n="mediaTitle"></h2>
+    </header>
+    <p class="muted" data-i18n="mediaSub"></p>
+    <div id="media"></div>
+  </section>
+
+  <section class="v" id="v-juego">
+    <header class="section-heading">
+      <span class="section-kicker" data-i18n="gameKicker"></span>
+      <h2 data-i18n="gameTitle"></h2>
+      <p class="muted" data-i18n="gameSub"></p>
+    </header>
+    <div id="menu">
+      <article class="card game-choice" data-rv style="--i:0">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="9.5" width="16" height="6.5" rx="2"/><circle cx="8.5" cy="18.5" r="1.8"/><circle cx="15.5" cy="18.5" r="1.8"/><path d="M12 9.5V6m-3.5 0h7"/></svg></span>
+        <h3 data-i18n="game1"></h3>
+        <p data-i18n="game1Desc"></p>
+        <button class="btn g" data-g="rover"><span data-i18n="startMission"></span> <span aria-hidden="true">↗</span></button>
+      </article>
+      <article class="card game-choice" data-rv style="--i:1">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.6-4.6"/></svg></span>
+        <h3 data-i18n="game2"></h3>
+        <p data-i18n="game2Desc"></p>
+        <button class="btn g" data-g="det"><span data-i18n="startMission"></span> <span aria-hidden="true">↗</span></button>
+      </article>
+      <article class="card game-choice" data-rv style="--i:2">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.5"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.5"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.5"/><rect x="13" y="13" width="7.5" height="7.5" rx="1.5"/></svg></span>
+        <h3 data-i18n="game3"></h3>
+        <p data-i18n="game3Desc"></p>
+        <button class="btn g" data-g="puz"><span data-i18n="startMission"></span> <span aria-hidden="true">↗</span></button>
+      </article>
+      <article class="card game-choice" data-rv style="--i:3">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/><circle cx="18.5" cy="5.5" r="1"/></svg></span>
+        <h3 data-i18n="game4"></h3>
+        <p data-i18n="game4Desc"></p>
+        <button class="btn g" data-g="luna"><span data-i18n="startMission"></span> <span aria-hidden="true">↗</span></button>
+      </article>
+      <article class="card game-choice" data-rv style="--i:4">
+        <span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
+        <h3 data-i18n="game5"></h3>
+        <p data-i18n="game5Desc"></p>
+        <button class="btn g" data-g="cohete"><span data-i18n="startMission"></span> <span aria-hidden="true">↗</span></button>
+      </article>
+      <p id="col" class="muted"></p>
+    </div>
+    <div id="gm" class="game-modal" hidden aria-hidden="true">
+      <section class="game-window" id="game-window" role="dialog" aria-modal="true" aria-labelledby="game-title" tabindex="-1">
+        <header class="game-window-header">
+          <div>
+            <span class="game-window-kicker" data-i18n="gameModalKicker"></span>
+            <h3 id="game-title" data-i18n="gameModalTitle"></h3>
+          </div>
+          <button class="game-close" id="game-close" type="button" data-i18n-attr="aria-label:closeGame" aria-label="Cerrar juego">×</button>
+        </header>
+        <div class="game-window-body" id="gbody"></div>
+        <footer class="game-window-footer">
+          <button class="chip" id="back" type="button" data-i18n="backToMissions"></button>
+        </footer>
+      </section>
+    </div>
+  </section>
+
+  <section class="v" id="v-creditos">
+    <header class="section-heading">
+      <span class="section-kicker" data-i18n="creditsKicker"></span>
+      <h2 data-i18n="creditsTitle"></h2>
+    </header>
+    <div class="card">
+      <b data-i18n="team"></b>
+      <p class="muted" data-i18n="teamDesc"></p>
+    </div>
+    <div class="card">
+      <b data-i18n="nasaResources"></b>
+      <ul id="cred"></ul>
+      <p class="cap" data-i18n="nasaNote"></p>
+    </div>
+    <div class="card">
+      <b data-i18n="mediaResources"></b>
+      <ul id="cred-media"></ul>
+    </div>
+    <div class="card">
+      <b data-i18n="toolsTitle"></b>
+      <p class="muted" data-i18n="toolsDesc"></p>
+    </div>
+    <div class="card">
+      <b data-i18n="aiTitle"></b>
+      <p class="muted" data-i18n="aiDesc"></p>
+    </div>
+  </section>
+
+  <script>window.ST_USER = {{ st_user|tojson }};</script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="{{ url_for('static', filename='js/i18n.js') }}?v=13"></script>
+  <script src="{{ url_for('static', filename='js/datos.js') }}?v=13"></script>
+  <script src="{{ url_for('static', filename='js/datos.en.js') }}?v=4"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=24"></script>
+  <script src="{{ url_for('static', filename='js/fondo.js') }}?v=1"></script>
+  <script src="{{ url_for('static', filename='js/juego-rover.js') }}?v=6"></script>
+  <script src="{{ url_for('static', filename='js/juego-detective.js') }}?v=4"></script>
+  <script src="{{ url_for('static', filename='js/juego-puzzle.js') }}?v=1"></script>
+  <script src="{{ url_for('static', filename='js/juego-main.js') }}?v=13"></script>
+</body>
+</html>

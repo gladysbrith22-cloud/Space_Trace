@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Space Trace{% endblock %} · Space Trace</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/Logo/Logo.png') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/modulos.css') }}?v=1">
+</head>
+<body class="mod">
+<nav class="mod-nav" aria-label="Navegación principal">
+  <a class="brand" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/Logo/Logo.png') }}" alt="">Space Trace</a>
+  <a class="l" href="{{ url_for('home') }}">Inicio</a>
+  <a class="l" href="{{ url_for('reto') }}">El reto</a>
+  <a class="l" href="{{ url_for('equipos.lista') }}">Archivo</a>
+  {% if usuario %}<a class="l" href="{{ url_for('reportes.lista') }}">Reportes</a><a class="l" href="{{ url_for('equipos.panel') }}">Mi panel</a>{% endif %}
+  {% if usuario and usuario['rol'] == 'ADMIN' %}<a class="l" href="{{ url_for('admin.usuarios') }}">Usuarios</a>{% endif %}
+  <span class="sp"></span>
+  {% if usuario %}
+    <span class="who">{{ usuario['nombre'] }} <span class="badge {{ 'admin' if usuario['rol'] == 'ADMIN' }}">{{ usuario['rol'] }}</span></span>
+    <form class="inline" method="post" action="{{ url_for('auth.logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="l" type="submit">Cerrar sesión</button>
+    </form>
+  {% else %}
+    <a class="l" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+    <a class="btn sm" href="{{ url_for('auth.registro') }}">Registrarse</a>
+  {% endif %}
+</nav>
+<main class="mod-main">
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in mensajes %}<div class="flash {{ cat }}" role="status">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  {% block contenido %}{% endblock %}
+</main>
+<footer class="mod-foot">Space Trace · NASA Space Apps Challenge 2026 · Imágenes y datos: NASA</footer>
+</body>
+</html>

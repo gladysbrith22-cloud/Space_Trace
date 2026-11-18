@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Reportes{% endblock %}
+{% block contenido %}
+<h1>Comentarios y reportes</h1>
+<p class="lead">{% if es_admin %}Todos los reportes enviados sobre el sistema interactivo.{% else %}Cuéntanos qué piensas del sistema interactivo (juegos, héroes, tiempo, ciencia, medios).{% endif %}</p>
+<form class="card f" method="post" action="{{ url_for('reportes.crear') }}">
+  <h3 style="margin:0">Nuevo reporte</h3>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="cols2">
+    <label>Tipo<select name="tipo">{% for t in TIPOS %}<option>{{ t }}</option>{% endfor %}</select></label>
+    <label>Sección<select name="seccion">{% for s in SECCIONES %}<option>{{ s }}</option>{% endfor %}</select></label>
+  </div>
+  <label>Mensaje<textarea name="mensaje" required maxlength="1000" placeholder="Describe tu comentario, el error que viste o tu sugerencia"></textarea></label>
+  <label>Calificación (opcional)<select name="calificacion"><option value="">Sin calificar</option>{% for n in range(1,6) %}<option>{{ n }}</option>{% endfor %}</select></label>
+  <button class="btn" type="submit">Enviar reporte</button>
+</form>
+<form class="row" method="get" style="margin:14px 0">
+  <select style="width:auto" name="tipo" aria-label="Tipo"><option value="">Todos los tipos</option>{% for t in TIPOS %}<option {{ 'selected' if t == tipo }}>{{ t }}</option>{% endfor %}</select>
+  <select style="width:auto" name="estado" aria-label="Estado"><option value="">Todos los estados</option>{% for s in ESTADOS %}<option {{ 'selected' if s == estado }}>{{ s }}</option>{% endfor %}</select>
+  <button class="btn sm sec" type="submit">Filtrar</button>
+</form>
+{% for r in reportes %}
+<article class="card">
+  <div class="row"><span class="badge">{{ r['tipo'] }}</span><span class="badge luna">{{ r['seccion'] }}</span>
+  <span class="badge {{ 'activo' if r['estado']=='Resuelto' }}">{{ r['estado'] }}</span>
+  {% if r['calificacion'] %}<span class="muted">{{ r['calificacion'] }}/5</span>{% endif %}</div>
+  <p>{{ r['mensaje'] }}</p>
+  <p class="muted">Por {{ r['autor'] }} · {{ r['creado'] }}</p>
+  {% if r['respuesta'] %}<p class="flash info"><b>Respuesta del equipo:</b> {{ r['respuesta'] }}</p>{% endif %}
+  {% if es_admin %}
+  <form class="row" method="post" action="{{ url_for('reportes.responder', reporte_id=r['id']) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select name="estado" style="width:auto" aria-label="Estado">{% for s in ESTADOS %}<option {{ 'selected' if s == r['estado'] }}>{{ s }}</option>{% endfor %}</select>
+    <input name="respuesta" maxlength="500" placeholder="Respuesta (opcional)" value="{{ r['respuesta'] }}" style="flex:1;min-width:200px">
+    <button class="btn sm sec" type="submit">Guardar</button>
+  </form>
+  {% endif %}
+  <div class="row" style="margin-top:8px">
+    {% if r['user_id'] == usuario['id'] and r['estado'] == 'Pendiente' %}<a class="btn sm sec" href="{{ url_for('reportes.editar', reporte_id=r['id']) }}">Editar</a>{% endif %}
+    <form class="inline" method="post" action="{{ url_for('reportes.eliminar', reporte_id=r['id']) }}" onsubmit="return confirm('¿Eliminar este reporte?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn sm danger" type="submit">Eliminar</button></form>
+  </div>
+</article>
+{% else %}<div class="card muted">No hay reportes todavía.</div>{% endfor %}
+{% endblock %}

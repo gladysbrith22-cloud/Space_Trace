@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Nuevo equipo' if modo == 'nuevo' else 'Editar equipo' }}{% endblock %}
+{% block contenido %}
+<h1>{{ 'Nuevo equipo' if modo == 'nuevo' else 'Editar equipo' }}</h1>
+<form class="card f" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nombre<input name="nombre" required maxlength="120" value="{{ equipo['nombre'] or '' }}"></label>
+  <div class="cols2">
+    <label>Lugar<select name="mundo">{% for m in MUNDOS %}<option {{ 'selected' if m == equipo['mundo'] }}>{{ m }}</option>{% endfor %}</select></label>
+    <label>Estado<select name="estado">{% for s in ESTADOS %}<option {{ 'selected' if s == equipo['estado'] }}>{{ s }}</option>{% endfor %}</select></label>
+    <label>Misión<input name="mision" value="{{ equipo['mision'] or '' }}"></label>
+    <label>Año de lanzamiento<input name="anio" inputmode="numeric" value="{{ equipo['anio'] or '' }}"></label>
+    <label>Creador<input name="creador" required value="{{ equipo['creador'] or '' }}"></label>
+    <label>Rol del creador<input name="rol_creador" value="{{ equipo['rol_creador'] or '' }}"></label>
+  </div>
+  <label>Qué hizo (historia)<textarea name="historia" required>{{ equipo['historia'] or '' }}</textarea></label>
+  <label>Qué quedó (legado)<textarea name="legado">{{ equipo['legado'] or '' }}</textarea></label>
+  <div class="cols2">
+    <label>URL de imagen (NASA)<input name="imagen_url" value="{{ equipo['imagen_url'] or '' }}"></label>
+    <label>Crédito de la imagen<input name="credito" value="{{ equipo['credito'] or '' }}"></label>
+  </div>
+  <label>URL de la fuente<input name="fuente_url" value="{{ equipo['fuente_url'] or '' }}"></label>
+  <div class="row"><button class="btn" type="submit">Guardar</button><a class="btn sec" href="{{ url_for('equipos.lista') }}">Cancelar</a></div>
+</form>
+{% endblock %}

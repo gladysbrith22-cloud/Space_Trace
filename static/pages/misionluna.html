@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Misión Luna 3D: ¡Mide antes del queso!</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
+canvas{display:block}
+.hud{position:fixed;pointer-events:none}
+#reloj{top:8px;left:8px;font:700 19px "Courier New",monospace;color:#5ef2ff;background:#000b;border:2px solid #5ef2ff;border-radius:8px;padding:5px 9px}
+#reloj small{display:block;font:11px "Trebuchet MS",sans-serif;color:#fff}
+#panel{top:84px;left:8px;width:min(200px,46vw);background:#000b;border-radius:10px;padding:8px;font-size:13px}
+.b{height:10px;border-radius:9px;background:#fff3;overflow:hidden;margin:3px 0 7px}
+.b i{display:block;height:100%;width:0}
+#bm{background:linear-gradient(90deg,#2aa7ff,#5ef2ff)}#bq{background:linear-gradient(90deg,#a9abb8,#ffc83d)}
+#obj div{opacity:.65;margin:2px 0}#obj .ok{opacity:1;color:#8dffb0}
+#radio{bottom:46px;left:50%;transform:translateX(-50%);width:min(620px,92vw);box-sizing:border-box;background:#000c;border:2px solid #ff5fa2;border-radius:12px;padding:9px 14px;font-size:17px;line-height:1.35}
+body.touch #radio{bottom:140px;font-size:14px}
+#radio b{color:#ff5fa2}
+#accion{left:50%;bottom:27%;transform:translateX(-50%);width:200px;text-align:center;display:none;font-weight:700;text-shadow:0 1px 4px #000}
+#accion .b{height:14px}#bp{background:#5ef2ff}
+#pow{left:50%;top:38%;transform:translate(-50%,-50%);font-size:clamp(40px,10vw,84px);font-weight:900;color:#ffc83d;text-shadow:0 4px 0 #b86f06,0 0 20px #000;opacity:0}
+#pow.go{animation:pw .8s ease-out}
+@keyframes pw{0%{opacity:1;transform:translate(-50%,-50%) scale(.4)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-90%) scale(1)}}
+#hint{bottom:8px;left:50%;transform:translateX(-50%);font-size:13px;background:#0008;border-radius:99px;padding:5px 14px;white-space:nowrap}
+#vozBtn{position:fixed;bottom:8px;right:8px;background:#000b;border:2px solid #fff6;color:#fff;border-radius:99px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}
+.touchui{display:none}body.touch .touchui{display:block}body.touch #hint{display:none}
+#joy{position:fixed;left:16px;bottom:16px;width:120px;height:120px;border-radius:50%;background:#ffffff22;border:2px solid #fff6;touch-action:none}
+#knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:#ffffffaa;pointer-events:none}
+.tb{position:fixed;right:16px;width:66px;height:66px;border-radius:50%;border:2px solid #fff8;background:#ff5fa2cc;color:#fff;font-size:28px;touch-action:none}
+#mapa{top:8px;right:8px;width:132px;height:132px;border-radius:50%;border:3px solid #5ef2ff;box-shadow:0 0 14px #5ef2ff88}
+#mapaT{top:144px;right:8px;width:138px;text-align:center;font-size:11px;text-shadow:0 1px 3px #000}
+#guia{top:8px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:#000c;border:2px solid #5ef2ff;border-radius:99px;padding:6px 16px;font-size:17px;font-weight:700;white-space:nowrap;animation:lat 1.4s infinite}
+#flecha{display:inline-block;font-size:26px;color:#5ef2ff;line-height:1}
+@keyframes lat{50%{box-shadow:0 0 18px #5ef2ff}}
+.tag{position:fixed;transform:translate(-50%,-100%);pointer-events:none;font-size:13px;font-weight:700;background:#000b;border:2px solid #5ef2ff;border-radius:99px;padding:2px 9px;white-space:nowrap;display:none}
+.tag.m{border-color:#ff5fa2;color:#ffb3d1}
+@media (max-width:700px){#reloj{font-size:14px;padding:3px 7px}#reloj small{display:none}#panel{top:46px}#mapa{width:92px;height:92px}#mapaT{display:none}.gname{display:none}#guia{padding:4px 10px;font-size:15px}}
+#fin{position:fixed;inset:0;background:#07062dee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:22px}
+#fin h2{margin:0;font-size:clamp(24px,6vw,40px)}#fin p{max-width:480px;margin:0;line-height:1.45}
+#fin button{background:#ffc83d;color:#3a2300;border:0;border-radius:99px;padding:12px 28px;font:inherit;font-weight:800;font-size:18px;cursor:pointer}
+button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="hud" id="reloj">MET 109:42:00<small>Mar de la Tranquilidad · 20 jul 1969<br>Fin de la caminata: 111:39</small></div>
+<div class="hud" id="panel">
+  📏 Medición <b id="tm">0%</b><div class="b"><i id="bm"></i></div>
+  🧀 Queso <b id="tq">0%</b><div class="b"><i id="bq"></i></div>
+  <div id="obj"></div>
+  <div id="dist" style="margin-top:5px;font-size:12px"></div>
+</div>
+<div class="hud" id="radio"><b>📻 HOUSTON</b><br><span id="rtxt">…</span></div>
+<canvas id="mapa" class="hud" width="132" height="132"></canvas>
+<div class="hud" id="mapaT">▲ = hacia donde miras</div>
+<div class="hud" id="guia"><span id="flecha">➤</span><span id="gtxt"></span></div>
+<button id="vozBtn">🔊 Voz</button>
+<div class="hud" id="accion"><span id="atxt"></span><div class="b"><i id="bp" style="width:0"></i></div></div>
+<div class="hud" id="pow">¡POW!</div>
+<div class="hud" id="hint">WASD: mover · ← →: girar cámara · Espacio: saltar · F: golpear · mantén E: instalar</div>
+<div class="touchui"><div id="joy"><div id="knob"></div></div>
+  <button class="tb" id="bAct" style="bottom:112px;right:100px">🔧</button>
+  <button class="tb" id="bHit" style="bottom:100px">🔨</button>
+  <button class="tb" id="bJump" style="bottom:182px">⬆</button></div>
+
+<div id="fin">
+  <h2>🌕 Misión Luna: ¡mide antes del queso!</h2>
+  <p>20 de julio de 1969, Mar de la Tranquilidad. Neil Armstrong acaba de pisar la Luna (hora de misión 109:42) y la caminata dura poco más de dos horas.<br><br>
+  Instala los 4 instrumentos de medición. Pero llegó un <b>ratón astronauta</b> con hambre que convierte el suelo en queso. ¡Defiéndete con tu martillo geológico!<br><br><small>Gira la cámara con ← → o arrastrando la pantalla. Sigue la flecha azul y el minimapa para encontrar los anillos.</small></p>
+  <button id="go">Comenzar misión</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+if (!window.THREE) { $('rtxt').textContent = 'Necesitas internet para cargar el juego 3D.'; }
+else main();
+
+function main(){
+const T = THREE, DUR = 150, MAXR = 91, rnd = (a, b) => a + Math.random() * (b - a);
+let state = 'intro', elapsed = 0, med = 0, queso = 0, vozOn = true, hitoQ = 0, jumpReq = false, lastWarn = 0, patchI = 0, yaw = 0;
+
+// ---------- escena ----------
+const R = new T.WebGLRenderer({antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio, 2)); R.setSize(innerWidth, innerHeight);
+R.shadowMap.enabled = true; R.shadowMap.type = T.PCFSoftShadowMap; document.body.prepend(R.domElement);
+const S = new T.Scene(); S.background = new T.Color(0x000004);
+const cam = new T.PerspectiveCamera(55, innerWidth / innerHeight, .1, 3000);
+addEventListener('resize', () => { R.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); });
+
+S.add(new T.HemisphereLight(0x8899ff, 0x333333, .4));
+const sun = new T.DirectionalLight(0xffffff, 1.3); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+const sc = sun.shadow.camera; sc.left = sc.bottom = -35; sc.right = sc.top = 35; sc.near = 1; sc.far = 160; sc.updateProjectionMatrix();
+S.add(sun, sun.target);
+
+{ const p = []; for (let i = 0; i < 1600; i++) { const u = Math.random() * 2 - 1, a = Math.random() * 6.283, s = Math.sqrt(1 - u * u);
+    p.push(s * Math.cos(a) * 1500, Math.abs(u) * 1500 + 20, s * Math.sin(a) * 1500); }
+  const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(p, 3));
+  S.add(new T.Points(g, new T.PointsMaterial({color:0xffffff, size:2, sizeAttenuation:false}))); }
+
+function earthTex(){ const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x = c.getContext('2d');
+  x.fillStyle = '#1f5fd0'; x.fillRect(0, 0, 256, 128);
+  [['#3a9d4a', 14, 28], ['rgba(255,255,255,.7)', 20, 18]].forEach(([col, n, s]) => { x.fillStyle = col;
+    for (let i = 0; i < n; i++) { x.beginPath(); x.ellipse(Math.random() * 256, 15 + Math.random() * 98, 8 + Math.random() * s, 5 + Math.random() * s / 2, 0, 0, 6.3); x.fill(); } });
+  return new T.CanvasTexture(c); }
+const earth = new T.Mesh(new T.SphereGeometry(60, 32, 24), new T.MeshBasicMaterial({map:earthTex()}));
+earth.position.set(-380, 260, -900); S.add(earth);
+
+function groundTex(){ const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  x.fillStyle = '#c9c9d1'; x.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 2500; i++) { const g = 120 + Math.random() * 100 | 0; x.fillStyle = 'rgba(' + g + ',' + g + ',' + (g + 8) + ',' + (.25 + Math.random() * .4) + ')';
+    x.beginPath(); x.arc(Math.random() * 256, Math.random() * 256, Math.random() * 2.2 + .3, 0, 6.3); x.fill(); }
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(150, 150); t.anisotropy = 4; return t; }
+const groundMat = new T.MeshStandardMaterial({map:groundTex(), roughness:1});
+const ground = new T.Mesh(new T.PlaneGeometry(600, 600), groundMat); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; S.add(ground);
+const white = new T.Color(1, 1, 1), yellow = new T.Color(1, .82, .25);
+
+for (let i = 0; i < 16; i++) { const m = new T.Mesh(new T.CircleGeometry(rnd(3, 10), 28), new T.MeshBasicMaterial({color:0, transparent:true, opacity:.18}));
+  m.rotation.x = -Math.PI / 2; m.position.set(rnd(-90, 90), .02, rnd(-90, 90)); S.add(m); }
+for (let i = 0; i < 80; i++) { const x = rnd(-95, 95), z = rnd(-95, 95); if (Math.hypot(x, z) < 8) continue; const r = rnd(.25, 1.2);
+  const m = new T.Mesh(new T.DodecahedronGeometry(r, 0), new T.MeshStandardMaterial({color:0x8a8a92, roughness:1}));
+  m.position.set(x, r * .4, z); m.rotation.set(Math.random() * 3, Math.random() * 3, 0); m.castShadow = true; S.add(m); }
+
+// ---------- módulo lunar Eagle ----------
+{ const gold = new T.MeshStandardMaterial({color:0xd9a441, metalness:.6, roughness:.4}), gr = new T.MeshStandardMaterial({color:0xbfc0c6, roughness:.7});
+  const e = new T.Group(); const add = (geo, mat, x, y, z) => { const o = new T.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = true; e.add(o); return o; };
+  add(new T.CylinderGeometry(2.2, 2.2, 2.4, 8), gold, 0, 3.6, 0);
+  add(new T.CylinderGeometry(1.5, 2, 1.7, 8), gr, 0, 5.5, 0);
+  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4, g = new T.Group(); g.rotation.y = -a; e.add(g);
+    const l = new T.Mesh(new T.CylinderGeometry(.08, .08, 3.6, 6), gr); l.position.set(2.4, 1.8, 0); l.rotation.z = .46; l.castShadow = true; g.add(l);
+    const f = new T.Mesh(new T.CylinderGeometry(.55, .55, .1, 16), gr); f.position.set(3.2, .05, 0); g.add(f); }
+  S.add(e); }
+
+// ---------- astronauta ----------
+function buildAstro(){ const g = new T.Group(), w = new T.MeshStandardMaterial({color:0xf4f4f6, roughness:.6}), v = new T.MeshStandardMaterial({color:0xe8b84a, metalness:.8, roughness:.2});
+  const m = (geo, mat, x, y, z, p) => { const o = new T.Mesh(geo, mat); o.position.set(x, y, z); o.castShadow = true; (p || g).add(o); return o; };
+  m(new T.CylinderGeometry(.32, .3, .85, 12), w, 0, 1.15, 0);
+  m(new T.SphereGeometry(.3, 16, 12), w, 0, 1.78, 0);
+  m(new T.SphereGeometry(.22, 16, 12), v, 0, 1.8, .14).scale.set(1, .8, .7);
+  m(new T.BoxGeometry(.5, .7, .25), w, 0, 1.2, -.38);
+  const piv = (x, y) => { const p = new T.Group(); p.position.set(x, y, 0); g.add(p); return p; };
+  const legL = piv(-.14, .75), legR = piv(.14, .75), armL = piv(-.42, 1.5), armR = piv(.42, 1.5);
+  [legL, legR].forEach(p => m(new T.CylinderGeometry(.13, .12, .75, 8), w, 0, -.37, 0, p));
+  m(new T.CylinderGeometry(.09, .08, .7, 8), w, 0, -.3, 0, armL);
+  m(new T.CylinderGeometry(.09, .08, .7, 8), w, 0, -.3, 0, armR);
+  const hd = new T.MeshStandardMaterial({color:0x555560}); const h = m(new T.CylinderGeometry(.03, .03, .5, 6), hd, 0, -.65, .3, armR); h.rotation.x = Math.PI / 2;
+  m(new T.BoxGeometry(.18, .12, .12), hd, 0, -.65, .58, armR);
+  return {g, legL, legR, armL, armR, kv:new T.Vector3(), vy:0, hit:0, ph:0, rot:0}; }
+const A = buildAstro(); A.g.position.set(5, 0, 7); S.add(A.g);
+
+// ---------- ratón astronauta ----------
+function buildMouse(){ const g = new T.Group(), gray = new T.MeshStandardMaterial({color:0xb8b8c4, roughness:.8}), pink = new T.MeshStandardMaterial({color:0xff9fbf}), blk = new T.MeshBasicMaterial({color:0x111111});
+  const m = (geo, mat, x, y, z, sx, sy, sz) => { const o = new T.Mesh(geo, mat); o.position.set(x, y, z); o.scale.set(sx || 1, sy || 1, sz || 1); o.castShadow = true; g.add(o); return o; };
+  m(new T.SphereGeometry(.9, 20, 16), gray, 0, .9, 0, 1, .85, 1.3);
+  m(new T.SphereGeometry(.55, 18, 14), gray, 0, 1.1, 1.1);
+  [-1, 1].forEach(s => { m(new T.SphereGeometry(.38, 14, 12), gray, s * .42, 1.65, .95, 1, 1, .3); m(new T.SphereGeometry(.26, 12, 10), pink, s * .42, 1.65, 1.02, 1, 1, .2); m(new T.SphereGeometry(.08, 8, 8), blk, s * .2, 1.25, 1.55); });
+  m(new T.SphereGeometry(.12, 10, 10), pink, 0, 1.05, 1.65);
+  const hel = m(new T.SphereGeometry(.78, 20, 16), new T.MeshStandardMaterial({color:0xaaddff, transparent:true, opacity:.28, roughness:.1}), 0, 1.15, 1.05); hel.castShadow = false;
+  const tl = m(new T.CylinderGeometry(.05, .05, 1.6, 6), pink, 0, .55, -1.5); tl.rotation.x = 1.1;
+  return g; }
+const M = {g:buildMouse(), hp:3, st:'wander', t:0, cd:2, v:new T.Vector3(), tgt:new T.Vector3(30, 0, 25), tt:0};
+M.g.position.set(40, 0, 35); S.add(M.g);
+
+// ---------- instrumentos de la caminata lunar ----------
+const defs = [
+  {n:'Retrorreflector láser', i:'📡', p:[34, -22], t:'Retrorreflector listo: con láseres se mide la distancia a la Luna.'},
+  {n:'Sismómetro', i:'📈', p:[-42, -30], t:'Sismómetro listo: escuchará los temblores lunares.'},
+  {n:'Viento solar', i:'☀️', p:[-28, 44], t:'Colector de viento solar listo: atrapa partículas del Sol.'},
+  {n:'Muestras de suelo', i:'🪨', p:[52, 34], t:'Muestras guardadas: se estudiarán en la Tierra.'}];
+const metal = new T.MeshStandardMaterial({color:0xd9a441, metalness:.7, roughness:.3}), foil = new T.MeshStandardMaterial({color:0xdddddd, side:T.DoubleSide, metalness:.5});
+defs.forEach((d, k) => {
+  d.g = new T.Group(); d.g.position.set(d.p[0], 0, d.p[1]); S.add(d.g); d.prog = 0; d.done = false;
+  d.ring = new T.Mesh(new T.RingGeometry(1.9, 2.4, 40), new T.MeshBasicMaterial({color:0x5ef2ff, transparent:true, opacity:.85, side:T.DoubleSide})); d.ring.rotation.x = -Math.PI / 2; d.ring.position.y = .05; d.g.add(d.ring);
+  d.beam = new T.Mesh(new T.CylinderGeometry(.15, .15, 18, 8), new T.MeshBasicMaterial({color:0x5ef2ff, transparent:true, opacity:.35})); d.beam.position.y = 9; d.g.add(d.beam);
+  const o = new T.Group(); o.visible = false; d.obj = o; d.g.add(o);
+  const mk = (geo, mat, x, y, z) => { const q = new T.Mesh(geo, mat); q.position.set(x, y, z); q.castShadow = true; o.add(q); return q; };
+  if (k === 0) { mk(new T.BoxGeometry(.8, .15, .8), foil, 0, .1, 0); const q = mk(new T.BoxGeometry(.7, .5, .06), metal, 0, .5, 0); q.rotation.x = -.5; }
+  if (k === 1) mk(new T.SphereGeometry(.6, 16, 10, 0, 6.28, 0, 1.57), metal, 0, 0, 0);
+  if (k === 2) { mk(new T.CylinderGeometry(.04, .04, 1.8, 6), foil, 0, .9, 0); mk(new T.PlaneGeometry(.6, .9), foil, .3, 1.2, 0); }
+  if (k === 3) { mk(new T.BoxGeometry(.7, .4, .45), new T.MeshStandardMaterial({color:0xffffff}), 0, .2, 0); }
+  $('obj').insertAdjacentHTML('beforeend', '<div id="o' + k + '">' + d.i + ' ' + d.n + '</div>'); });
+
+// ---------- queso ----------
+const patches = [];
+function patch(x, z){ let p; if (patches.length < 70) { p = new T.Mesh(new T.CircleGeometry(1, 20), new T.MeshStandardMaterial({color:0xffd447, roughness:.5})); p.rotation.x = -Math.PI / 2; S.add(p); patches.push(p); }
+  else p = patches[patchI++ % 70];
+  p.position.set(x, .04, z); p.userData = {r:rnd(1.8, 4), s:.1}; p.scale.setScalar(.1); }
+
+// ---------- voz y radio ----------
+function hablar(t){ if (!vozOn || !('speechSynthesis' in window)) return; speechSynthesis.cancel();
+  const v = new SpeechSynthesisUtterance(t); v.lang = 'es-MX'; v.pitch = 1.8; v.rate = 1.1;
+  const es = speechSynthesis.getVoices().find(x => x.lang.startsWith('es')); if (es) v.voice = es; speechSynthesis.speak(v); }
+function radio(t){ $('rtxt').textContent = t; hablar(t); }
+function pow(t){ const e = $('pow'); e.textContent = t; e.classList.remove('go'); void e.offsetWidth; e.classList.add('go'); }
+$('vozBtn').onclick = e => { e.target.blur(); vozOn = !vozOn; e.target.textContent = vozOn ? '🔊 Voz' : '🔇 Voz'; if (!vozOn) speechSynthesis.cancel(); };
+
+// ---------- controles ----------
+const K = {}, joy = {x:0, z:0, on:false}, inp = {act:false};
+addEventListener('keydown', e => { const k = e.key.toLowerCase(); K[k] = true;
+  if (k === ' ') { jumpReq = true; e.preventDefault(); } if ((k === 'f' || k === 'j') && !e.repeat) golpe(); });
+addEventListener('keyup', e => K[e.key.toLowerCase()] = false);
+addEventListener('blur', () => { for (const k in K) K[k] = false; });
+if (matchMedia('(pointer:coarse)').matches) document.body.classList.add('touch');
+const J = $('joy'), KN = $('knob');
+function mv(e){ const r = J.getBoundingClientRect(), dx = (e.clientX - r.left - r.width / 2) / (r.width / 2), dy = (e.clientY - r.top - r.height / 2) / (r.height / 2), m = Math.hypot(dx, dy), k = m > 1 ? 1 / m : 1;
+  joy.x = dx * k; joy.z = dy * k; KN.style.transform = 'translate(' + joy.x * 35 + 'px,' + joy.z * 35 + 'px)'; }
+const stopJ = () => { joy.on = false; joy.x = joy.z = 0; KN.style.transform = 'none'; };
+J.addEventListener('pointerdown', e => { J.setPointerCapture(e.pointerId); joy.on = true; mv(e); });
+J.addEventListener('pointermove', e => { if (joy.on) mv(e); });
+J.addEventListener('pointerup', stopJ); J.addEventListener('pointercancel', stopJ);
+const bA = $('bAct'); bA.addEventListener('pointerdown', () => inp.act = true);
+['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => bA.addEventListener(ev, () => inp.act = false));
+$('bHit').addEventListener('pointerdown', golpe); $('bJump').addEventListener('pointerdown', () => jumpReq = true);
+let drag = null;
+R.domElement.addEventListener('pointerdown', e => { drag = {id:e.pointerId, x:e.clientX}; });
+addEventListener('pointermove', e => { if (drag && e.pointerId === drag.id) { yaw -= (e.clientX - drag.x) * .006; drag.x = e.clientX; } });
+['pointerup', 'pointercancel'].forEach(ev => addEventListener(ev, e => { if (drag && e.pointerId === drag.id) drag = null; }));
+
+// ---------- combate ----------
+function golpe(){ if (state !== 'play' || A.hit > 0) return; A.hit = .45;
+  const p = M.g.position, a = A.g.position, dx = p.x - a.x, dz = p.z - a.z, d = Math.hypot(dx, dz);
+  if (M.st !== 'stun' && d < 3.8) { M.hp--; M.st = 'stun'; M.t = 4.5; M.v.set(dx / d * 8, 5.5, dz / d * 8); pow('¡POW!');
+    radio(M.hp > 0 ? '¡Buen golpe! En gravedad lunar el ratón sale volando.' : '¡El ratón huye asustado!'); } }
+
+function mouseAI(dt){ const g = M.g, p = g.position, a = A.g.position, dx = a.x - p.x, dz = a.z - p.z, d = Math.hypot(dx, dz) || 1; M.cd -= dt;
+  if (M.st === 'stun') { M.v.y -= 1.62 * dt; p.addScaledVector(M.v, dt); if (p.y > 0) { g.rotation.x += dt * 9; g.rotation.z += dt * 5; }
+    if (p.y <= 0) { p.y = 0; M.v.set(0, 0, 0); g.rotation.x = g.rotation.z = 0; }
+    M.t -= dt; if (M.t <= 0) { g.rotation.set(0, g.rotation.y, 0); p.y = 0; if (M.hp <= 0) { M.st = 'flee'; M.t = 12; } else M.st = 'wander'; } return; }
+  if (M.st === 'flee') { p.x -= dx / d * 6 * dt; p.z -= dz / d * 6 * dt; g.rotation.y = Math.atan2(-dx, -dz); p.y = Math.abs(Math.sin(elapsed * 7)) * .7;
+    M.t -= dt; if (M.t <= 0) { M.hp = 3; M.st = 'wander'; } return; }
+  const chase = d < 35; M.tt -= dt;
+  if (!chase && (M.tt <= 0 || p.distanceTo(M.tgt) < 2)) { M.tgt.set(rnd(-80, 80), 0, rnd(-80, 80)); M.tt = 6; }
+  const tx = chase ? a.x : M.tgt.x, tz = chase ? a.z : M.tgt.z, ex = tx - p.x, ez = tz - p.z, e = Math.hypot(ex, ez) || 1, sp = chase ? 4.2 : 2.8;
+  if (e > 1.5) { p.x += ex / e * sp * dt; p.z += ez / e * sp * dt; } g.rotation.y = Math.atan2(ex, ez); p.y = Math.abs(Math.sin(elapsed * 6)) * .6;
+  M.st = chase ? 'chase' : 'wander';
+  if (d < 2.3 && M.cd <= 0) { A.kv.set(dx / d * 8, 0, dz / d * 8); A.vy = 2.2; M.cd = 2.2; queso += 2; pow('¡ZAS!'); radio('¡El ratón te empujó! Contraataca con F.'); }
+  const r = Math.hypot(p.x, p.z); if (r > 100) { p.x *= 100 / r; p.z *= 100 / r; } }
+
+// ---------- actualización ----------
+function update(dt){ elapsed += dt;
+  if (K.arrowleft) yaw -= 1.8 * dt; if (K.arrowright) yaw += 1.8 * dt;
+  let ix = (K.d ? 1 : 0) - (K.a ? 1 : 0), iz = (K.s || K.arrowdown ? 1 : 0) - (K.w || K.arrowup ? 1 : 0);
+  if (joy.on) { ix = joy.x; iz = joy.z; }
+  const mag = Math.min(1, Math.hypot(ix, iz)), p = A.g.position, cy = Math.cos(yaw), sy = Math.sin(yaw), wx = ix * cy + iz * sy, wz = -ix * sy + iz * cy;
+  if (mag > .05) { const a = Math.atan2(wx, wz); const df = Math.atan2(Math.sin(a - A.rot), Math.cos(a - A.rot)); A.rot += df * Math.min(1, dt * 12);
+    p.x += Math.sin(a) * 4.5 * mag * dt; p.z += Math.cos(a) * 4.5 * mag * dt; A.ph += dt * 9 * mag; }
+  A.g.rotation.y = A.rot;
+  p.addScaledVector(A.kv, dt); A.kv.multiplyScalar(Math.exp(-3 * dt));
+  if (jumpReq && p.y <= 0) A.vy = 2.4; jumpReq = false;
+  A.vy -= 1.62 * dt; p.y += A.vy * dt; if (p.y <= 0) { p.y = 0; A.vy = 0; }
+  const r = Math.hypot(p.x, p.z); if (r > MAXR) { p.x *= MAXR / r; p.z *= MAXR / r; if (elapsed - lastWarn > 4) { lastWarn = elapsed; radio('Límite de la caminata: 91 m desde el Eagle.'); } }
+  const air = p.y > .05; A.legL.rotation.x = air ? .6 : Math.sin(A.ph) * .8 * mag; A.legR.rotation.x = air ? -.3 : -Math.sin(A.ph) * .8 * mag;
+  A.armL.rotation.x = air ? -.8 : -Math.sin(A.ph) * .6 * mag;
+  if (A.hit > 0) { A.hit -= dt; A.armR.rotation.x = -.3 - Math.sin((1 - Math.max(0, A.hit) / .45) * Math.PI) * 2.2; } else A.armR.rotation.x = Math.sin(A.ph) * .6 * mag - .3;
+
+  // instalar instrumentos
+  let near = null; defs.forEach(d => { if (!d.done && Math.hypot(p.x - d.p[0], p.z - d.p[1]) < 2.5) near = d; });
+  const acting = K.e || inp.act;
+  defs.forEach(d => { if (d === near && acting) d.prog += dt / 2.2; else d.prog = Math.max(0, d.prog - dt);
+    d.beam.material.opacity = d.done ? .12 : .25 + Math.sin(elapsed * 4) * .12; });
+  $('accion').style.display = near ? 'block' : 'none';
+  if (near) { $('atxt').textContent = acting ? 'Instalando ' + near.n + '…' : 'Mantén E (o 🔧) para instalar'; $('bp').style.width = Math.min(100, near.prog * 100) + '%'; }
+  if (near && near.prog >= 1) { near.done = true; near.obj.visible = true; near.ring.material.color.set(0x7dff9b); near.beam.material.color.set(0x7dff9b);
+    med += 25; $('o' + defs.indexOf(near)).classList.add('ok'); $('o' + defs.indexOf(near)).textContent = '✔ ' + near.i + ' ' + near.n; radio(near.t); }
+
+  mouseAI(dt);
+  const stun = M.st === 'stun', flee = M.st === 'flee';
+  if (!stun) queso += 100 / DUR * (1 + queso / 100 * .5) * (flee ? .3 : 1) * dt;
+  if (!stun && !flee) { M.pt = (M.pt || 0) + dt; if (M.pt > .7) { M.pt = 0; patch(M.g.position.x, M.g.position.z); } }
+  patches.forEach(q => { if (q.userData.s < 1) { q.userData.s = Math.min(1, q.userData.s + dt * 1.5); q.scale.setScalar(q.userData.r * q.userData.s); } });
+  groundMat.color.lerpColors(white, yellow, Math.min(1, queso / 100));
+  [25, 50, 75].forEach(h => { if (queso >= h && hitoQ < h) { hitoQ = h; radio(h === 25 ? '¡El ratón huele el queso! Sigue instalando.' : h === 50 ? '¡Cuidado! La mitad de la Luna ya es queso.' : '¡Peligro! Casi no queda Luna.'); } });
+
+  const met = 109 * 3600 + 42 * 60 + elapsed * 47, f = n => String(n).padStart(2, '0');
+  $('reloj').firstChild.nodeValue = 'MET ' + Math.floor(met / 3600) + ':' + f(Math.floor(met / 60) % 60) + ':' + f(Math.floor(met) % 60);
+  const q = Math.min(100, queso);
+  $('bm').style.width = med + '%'; $('tm').textContent = med + '%'; $('bq').style.width = q + '%'; $('tq').textContent = Math.floor(q) + '%';
+  $('dist').textContent = 'Distancia al Eagle: ' + Math.floor(r) + ' m / ' + MAXR + ' m';
+  if (med >= 100) finish(true); else if (queso >= 100) finish(false); }
+
+function finish(win){ state = win ? 'win' : 'lose'; $('accion').style.display = 'none'; $('guia').style.display = 'none';
+  defs.forEach(d => d.tag.style.display = 'none'); mTag.style.display = 'none';
+  $('fin').querySelector('h2').textContent = win ? '¡Medición completa! 🎉' : '¡El ratón convirtió la Luna en queso! 🧀';
+  $('fin').querySelector('p').innerHTML = win
+    ? 'Instalaste los instrumentos antes de que se acabara el tiempo. <b>Dato real:</b> Armstrong y Aldrin pasaron 21 h 36 min en la superficie lunar y dejaron un retrorreflector para medir con láser la distancia entre la Tierra y la Luna.'
+    : 'No alcanzaste a terminar las mediciones. <b>Dato real:</b> la Luna es de roca; las muestras que trajo el Apolo 11 sirvieron para estudiarla en la Tierra.';
+  $('go').textContent = 'Jugar otra vez'; $('go').onclick = () => location.reload(); $('fin').style.display = 'flex';
+  if (win && window.parent !== window) { try { window.parent.postMessage({ type: 'luna-win' }, '*'); } catch (e) {} }
+  hablar(win ? '¡Medición completa! Lo lograste.' : '¡Oh no! El ratón convirtió la Luna en queso.'); }
+
+$('fin').style.display = 'flex';
+$('go').onclick = () => { $('fin').style.display = 'none'; state = 'play';
+  radio('¡Houston, aquí Base Tranquilidad! Instala los 4 instrumentos en los anillos azules antes de que el ratón lo convierta todo en queso.'); };
+
+// ---------- minimapa, flecha guía y etiquetas ----------
+const MC = $('mapa'), mx = MC.getContext('2d'), MS = MC.width / 2, RANGE = 70, pv = new T.Vector3();
+function mkTag(cls){ const d = document.createElement('div'); d.className = 'tag ' + cls; document.body.appendChild(d); return d; }
+defs.forEach(d => d.tag = mkTag(''));
+const mTag = mkTag('m');
+function tagAt(el, x, y, z, html){ pv.set(x, y, z).project(cam);
+  if (pv.z > 1 || Math.abs(pv.x) > 1.05 || Math.abs(pv.y) > 1.05) { el.style.display = 'none'; return; }
+  el.style.display = 'block'; el.innerHTML = html; el.style.left = (pv.x * .5 + .5) * innerWidth + 'px'; el.style.top = (-pv.y * .5 + .5) * innerHeight + 'px'; }
+function ui(){
+  const p = A.g.position, c = Math.cos(yaw), s = Math.sin(yaw), k = MS / RANGE;
+  const toS = (x, z, clamp) => { const dx = x - p.x, dz = z - p.z; let sx = MS + (dx * c - dz * s) * k, sy = MS + (dx * s + dz * c) * k;
+    if (clamp) { const d = Math.hypot(sx - MS, sy - MS), m = MS - 9; if (d > m) { sx = MS + (sx - MS) * m / d; sy = MS + (sy - MS) * m / d; } } return [sx, sy]; };
+  mx.clearRect(0, 0, MC.width, MC.height); mx.save(); mx.beginPath(); mx.arc(MS, MS, MS, 0, 6.3); mx.clip();
+  mx.fillStyle = 'rgba(8,8,40,.88)'; mx.fillRect(0, 0, MC.width, MC.height);
+  const o = toS(0, 0); mx.setLineDash([4, 4]); mx.strokeStyle = 'rgba(255,255,255,.4)'; mx.beginPath(); mx.arc(o[0], o[1], MAXR * k, 0, 6.3); mx.stroke(); mx.setLineDash([]);
+  mx.fillStyle = 'rgba(255,212,71,.8)';
+  patches.forEach(q => { if (q.userData.s > .3) { const a = toS(q.position.x, q.position.z); mx.beginPath(); mx.arc(a[0], a[1], Math.max(2, q.userData.r * q.userData.s * k), 0, 6.3); mx.fill(); } });
+  const e = toS(0, 0, true); mx.fillStyle = '#d9a441'; mx.fillRect(e[0] - 4, e[1] - 4, 8, 8);
+  mx.font = '13px serif'; mx.textAlign = 'center';
+  defs.forEach(d => { const a = toS(d.p[0], d.p[1], true); mx.fillStyle = d.done ? 'rgba(125,255,155,.5)' : 'rgba(94,242,255,.35)';
+    mx.beginPath(); mx.arc(a[0], a[1], 9 + (d.done ? 0 : Math.sin(elapsed * 5) * 2), 0, 6.3); mx.fill(); mx.fillStyle = '#fff'; mx.fillText(d.done ? '✔' : d.i, a[0], a[1] + 5); });
+  const m = toS(M.g.position.x, M.g.position.z, true); mx.fillStyle = M.st === 'chase' ? '#ff3b6b' : '#ff9fbf';
+  mx.beginPath(); mx.arc(m[0], m[1], 9, 0, 6.3); mx.fill(); mx.fillStyle = '#fff'; mx.fillText('🐭', m[0], m[1] + 5);
+  const hu = Math.sin(A.rot) * c - Math.cos(A.rot) * s, hf = -(Math.sin(A.rot) * s + Math.cos(A.rot) * c);
+  mx.translate(MS, MS); mx.rotate(Math.atan2(hu, hf)); mx.fillStyle = '#fff'; mx.beginPath(); mx.moveTo(0, -9); mx.lineTo(6, 7); mx.lineTo(-6, 7); mx.closePath(); mx.fill(); mx.restore();
+
+  const left = defs.filter(d => !d.done);
+  if (left.length) { let b = left[0], bd = 1e9; left.forEach(d => { const q = Math.hypot(d.p[0] - p.x, d.p[1] - p.z); if (q < bd) { bd = q; b = d; } });
+    const dx = b.p[0] - p.x, dz = b.p[1] - p.z;
+    $('flecha').style.transform = 'rotate(' + (Math.atan2(dx * c - dz * s, -(dx * s + dz * c)) - Math.PI / 2) + 'rad)';
+    $('gtxt').innerHTML = b.i + ' <span class="gname">' + b.n + '</span> · ' + Math.round(bd) + ' m'; $('guia').style.display = 'flex'; }
+  else $('guia').style.display = 'none';
+  defs.forEach(d => tagAt(d.tag, d.p[0], 7, d.p[1], d.done ? '✔ ' + d.i : d.i + ' ' + d.n + ' · ' + Math.round(Math.hypot(d.p[0] - p.x, d.p[1] - p.z)) + ' m'));
+  const md = Math.hypot(M.g.position.x - p.x, M.g.position.z - p.z);
+  tagAt(mTag, M.g.position.x, 3.4, M.g.position.z, (md < 14 ? '⚠ ' : '') + '🐭 ¡Ratón! · ' + Math.round(md) + ' m'); }
+
+// ---------- bucle ----------
+let last = performance.now();
+const camT = new T.Vector3(), look = new T.Vector3();
+function loop(t){ const dt = Math.min(.05, (t - last) / 1000); last = t;
+  if (state === 'play') { update(dt); if (state === 'play') ui(); }
+  earth.rotation.y += dt * .05;
+  const a = A.g.position; sun.position.set(a.x - 40, 45, a.z - 30); sun.target.position.copy(a);
+  camT.set(a.x + Math.sin(yaw) * 11, a.y * .5 + 6.5, a.z + Math.cos(yaw) * 11); cam.position.lerp(camT, 1 - Math.exp(-6 * dt)); look.set(a.x, a.y * .5 + 1.5, a.z); cam.lookAt(look);
+  R.render(S, cam); requestAnimationFrame(loop); }
+cam.position.set(5, 7, 18);
+requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}{{ equipo['nombre'] }}{% endblock %}
+{% block contenido %}
+<p><a href="{{ url_for('equipos.lista') }}">← Volver al archivo</a></p>
+<h1>{{ equipo['nombre'] }}</h1>
+<p><span class="badge {{ 'luna' if equipo['mundo']=='Luna' else 'marte' if equipo['mundo']=='Marte' else 'espacio' }}">{{ equipo['mundo'] }}</span>
+<span class="badge {{ 'activo' if equipo['estado']=='Activo' }}">{{ equipo['estado'] }}</span>
+{% if equipo['anio'] %}<span class="muted"> · {{ equipo['anio'] }}</span>{% endif %}
+{% if equipo['mision'] %}<span class="muted"> · {{ equipo['mision'] }}</span>{% endif %}</p>
+{% if equipo['imagen_url'] %}<figure style="margin:0"><img class="hero-img" src="{{ equipo['imagen_url'] }}" alt="Imagen de {{ equipo['nombre'] }}" onerror="this.style.display='none'">
+<figcaption class="muted">{{ equipo['credito'] }}</figcaption></figure>{% endif %}
+<div class="card"><h2 style="margin-top:0">Quién lo creó</h2>
+<p><b>{{ equipo['creador'] }}</b><br><span class="muted">{{ equipo['rol_creador'] }}</span></p>
+<h2>Qué hizo</h2><p>{{ equipo['historia'] }}</p>
+{% if equipo['legado'] %}<h2>Qué quedó</h2><p>{{ equipo['legado'] }}</p>{% endif %}
+{% if equipo['fuente_url'] %}<p><a href="{{ equipo['fuente_url'] }}" target="_blank" rel="noopener noreferrer">Fuente NASA</a></p>{% endif %}
+</div>
+{% if usuario and usuario['rol'] == 'ADMIN' %}
+<div class="row">
+  <a class="btn sec" href="{{ url_for('equipos.editar', equipo_id=equipo['id']) }}">Editar equipo</a>
+  <form class="inline" method="post" action="{{ url_for('equipos.eliminar', equipo_id=equipo['id']) }}" onsubmit="return confirm('¿Eliminar este equipo y sus historias?')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn danger" type="submit">Eliminar equipo</button></form>
+</div>
+{% endif %}
+<h2 id="historias">Historias de la comunidad</h2>
+{% for h in historias %}
+<article class="card"><h3 style="margin-top:0">{{ h['titulo'] }}</h3>
+<p>{{ h['texto'] }}</p><p class="muted">Por {{ h['autor'] }} · {{ h['creado'] }}</p>
+{% if puede_gestionar(h) %}<div class="row">
+  <a class="btn sm sec" href="{{ url_for('equipos.editar_historia', historia_id=h['id']) }}">Editar</a>
+  <form class="inline" method="post" action="{{ url_for('equipos.eliminar_historia', historia_id=h['id']) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn sm danger" type="submit">Eliminar</button></form></div>{% endif %}
+</article>
+{% else %}<div class="card muted">Aún no hay historias. ¡Sé la primera persona en escribir una!</div>{% endfor %}
+{% if usuario %}
+<form class="card f" method="post" action="{{ url_for('equipos.crear_historia', equipo_id=equipo['id']) }}">
+  <h3 style="margin:0">Cuenta tu historia</h3>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Título<input name="titulo" required maxlength="100"></label>
+  <label>Tu historia<textarea name="texto" required maxlength="1500"></textarea></label>
+  <button class="btn" type="submit">Publicar</button>
+</form>
+{% else %}<p class="card"><a href="{{ url_for('auth.login', next=request.path) }}">Inicia sesión</a> para publicar tu historia.</p>{% endif %}
+{% endblock %}

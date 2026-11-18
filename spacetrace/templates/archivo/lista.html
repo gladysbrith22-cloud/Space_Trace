@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Archivo{% endblock %}
+{% block contenido %}
+<div class="row" style="justify-content:space-between">
+  <div><h1>Archivo de equipos</h1><p class="lead">Máquinas que la NASA dejó atrás y las personas que las crearon.</p></div>
+  {% if usuario and usuario['rol'] == 'ADMIN' %}<a class="btn" href="{{ url_for('equipos.nuevo') }}">+ Nuevo equipo</a>{% endif %}
+</div>
+<form class="card row" method="get" role="search">
+  <input style="flex:2;min-width:180px" name="q" value="{{ q }}" placeholder="Buscar por equipo, creador o misión" aria-label="Buscar">
+  <select style="flex:1;min-width:140px" name="mundo" aria-label="Lugar"><option value="">Todos los lugares</option>
+    {% for m in MUNDOS %}<option {{ 'selected' if m == mundo }}>{{ m }}</option>{% endfor %}</select>
+  <select style="flex:1;min-width:140px" name="estado" aria-label="Estado"><option value="">Todos los estados</option>
+    {% for s in ESTADOS %}<option {{ 'selected' if s == estado }}>{{ s }}</option>{% endfor %}</select>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+{% if equipos %}
+<div class="grid">
+{% for e in equipos %}
+  <article class="card">
+    {% if e['imagen_url'] %}<img class="thumb" src="{{ e['imagen_url'] }}" alt="" loading="lazy" onerror="this.style.display='none'">{% endif %}
+    <div><span class="badge {{ 'luna' if e['mundo']=='Luna' else 'marte' if e['mundo']=='Marte' else 'espacio' }}">{{ e['mundo'] }}</span>
+    <span class="badge {{ 'activo' if e['estado']=='Activo' }}">{{ e['estado'] }}</span></div>
+    <h3>{{ e['nombre'] }}</h3>
+    <p class="muted">Creador: {{ e['creador'] }}{% if e['anio'] %} · {{ e['anio'] }}{% endif %}</p>
+    <p class="muted">{{ e['n_historias'] }} historia(s) de la comunidad</p>
+    <div class="row"><a class="btn sm" href="{{ url_for('equipos.detalle', equipo_id=e['id']) }}">Ver historia</a>
+    {% if usuario and usuario['rol'] == 'ADMIN' %}<a class="btn sm sec" href="{{ url_for('equipos.editar', equipo_id=e['id']) }}">Editar</a>{% endif %}</div>
+  </article>
+{% endfor %}
+</div>
+{% else %}<div class="card">No hay equipos que coincidan con tu búsqueda.</div>{% endif %}
+{% endblock %}

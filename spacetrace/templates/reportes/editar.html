@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Editar reporte{% endblock %}
+{% block contenido %}
+<h1>Editar reporte</h1>
+<form class="card f" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="cols2">
+    <label>Tipo<select name="tipo">{% for t in TIPOS %}<option {{ 'selected' if t == r['tipo'] }}>{{ t }}</option>{% endfor %}</select></label>
+    <label>Sección<select name="seccion">{% for s in SECCIONES %}<option {{ 'selected' if s == r['seccion'] }}>{{ s }}</option>{% endfor %}</select></label>
+  </div>
+  <label>Mensaje<textarea name="mensaje" required maxlength="1000">{{ r['mensaje'] }}</textarea></label>
+  <label>Calificación<select name="calificacion"><option value="">Sin calificar</option>{% for n in range(1,6) %}<option {{ 'selected' if r['calificacion'] == n }}>{{ n }}</option>{% endfor %}</select></label>
+  <div class="row"><button class="btn" type="submit">Guardar</button><a class="btn sec" href="{{ url_for('reportes.lista') }}">Cancelar</a></div>
+</form>
+{% endblock %}

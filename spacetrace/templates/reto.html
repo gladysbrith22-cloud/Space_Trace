@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}El reto{% endblock %}
+{% block contenido %}
+<h1>Reto seleccionado</h1>
+<p class="lead">NASA Space Apps Challenge 2026 · «NASA’s Discarded Equipment Storytelling» (Abandonados, pero no olvidados)</p>
+<div class="card"><h2 style="margin-top:0">El problema</h2>
+<p>En la Luna, en Marte y en el espacio profundo hay equipos que la NASA dejó atrás: módulos de aterrizaje, rovers, helicópteros y sondas. Casi nadie conoce su historia, quiénes los crearon ni qué lograron antes de quedar inactivos o abandonados.</p></div>
+<div class="card"><h2 style="margin-top:0">La solución: Space Trace</h2>
+<p>Una aplicación web que cuenta la historia de cada equipo junto con la persona que lo creó. Incluye:</p>
+<ul>
+<li><b>Experiencia interactiva</b> (inicio): héroes, línea de tiempo, ciencia, medios y 5 minijuegos.</li>
+<li><b>Archivo</b> (base de datos SQLite): catálogo de equipos con operaciones CRUD, gestionado por administradores.</li>
+<li><b>Historias de la comunidad</b>: los exploradores registrados publican, editan y eliminan sus propias historias.</li>
+<li><b>Cuentas y roles</b>: registro, inicio y cierre de sesión; roles ADMIN y EXPLORADOR.</li>
+</ul></div>
+<p><a class="btn" href="{{ url_for('equipos.lista') }}">Explorar el archivo</a>
+<a class="btn sec" href="https://www.spaceappschallenge.org/2026/challenges/" target="_blank" rel="noopener noreferrer">Ver los retos 2026</a></p>
+{% endblock %}
